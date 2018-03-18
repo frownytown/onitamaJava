@@ -8,16 +8,13 @@ public class Piece {
 	public static final int COLOR_BLACK = 1;
 	
 	private int type;
-	public static final int TYPE_ROOK = 1;
-	public static final int TYPE_KNIGHT = 2;
-	public static final int TYPE_BISHOP = 3;
-	public static final int TYPE_QUEEN = 4;
 	public static final int TYPE_KING = 5;
 	public static final int TYPE_PAWN = 6;
 	
-	//Chess is played on a square board of
-	//eight rows (called ranks and denoted with numbers 1 to 8)
-	//and eight columns (called files and denoted with letters a to h) of squares.
+	//Onitama is played on a square board of
+	//five rows (called ranks and denoted with numbers 0 to 4)
+	//and eight columns (called files and denoted with letters A to E) of
+	// squares.
 	private int row;
 	
 	public static final int ROW_1 = 0;
@@ -69,12 +66,8 @@ public class Piece {
 		
 		String strType = "unknown";
 		switch (this.type) {
-			case TYPE_BISHOP: strType = "B";break;
 			case TYPE_KING: strType = "K";break;
-			case TYPE_KNIGHT: strType = "N";break;
 			case TYPE_PAWN: strType = "P";break;
-			case TYPE_QUEEN: strType = "Q";break;
-			case TYPE_ROOK: strType = "R";break;
 		}
 		
 		String strRow = getRowString(this.row);

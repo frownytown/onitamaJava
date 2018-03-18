@@ -2,19 +2,41 @@ package ch03.logic;
 
 public class MoveValidator {
 
+    private OnitamaGame onitamaGame;
+    private Piece sourcePiece;
+    private Piece targetPiece;
+
+    public MoveValidator(OnitamaGame onitamaGame){
+        this.onitamaGame = onitamaGame;
+    }
+
     // Function for checking if the specified move is valid
     // return true if valid, false if not
-    public boolean isMoveValid(int sourceRow, int sourceColumn, int targetRow, int targetColumn) {
-        sourcePiece = chessGame.getNonCapturedPieceAtLocation(sourceRow, sourceColumn);
-        targetPiece = this.chessGame.getNonCapturedPieceAtLocation(targetRow, targetColumn);
+    public boolean isMoveValid(Move move) {
+        int sourceRow = move.sourceRow;
+        int sourceColumn = move.sourceColumn;
+        int targetRow = move.targetRow;
+        int targetColumn = move.targetColumn;
+
+        sourcePiece = onitamaGame.getNonCapturedPieceAtLocation(sourceRow, sourceColumn);
+        targetPiece = this.onitamaGame.getNonCapturedPieceAtLocation(targetRow,
+                targetColumn);
+
+        // check if source piece does not exist
+        if (sourcePiece == null){
+            System.out.println("There is no source piece");
+            return false;
+        }
 
         // source piece correct color
-        if(sourcePiece.getColor() == Piece.COLOR_WHITE && this.chessGame.getGameState()
-                == ChessGame.GAME_STATE_WHITE) {
+        if(sourcePiece.getColor() == Piece.COLOR_WHITE && this.onitamaGame
+                .getGameState()
+                == OnitamaGame.GAME_STATE_WHITE) {
             //ok
         }
-        else if(sourcePiece.getColor() == Piece.COLOR_BLACK && this.chessGame.getGameState()
-                == ChessGame.GAME_STATE_BLACK) {
+        else if(sourcePiece.getColor() == Piece.COLOR_BLACK && this.onitamaGame
+                .getGameState()
+                == OnitamaGame.GAME_STATE_BLACK) {
             // ok
         }
         else {
@@ -29,5 +51,6 @@ public class MoveValidator {
             return false;
         }
 
+        return true;
     }
 }

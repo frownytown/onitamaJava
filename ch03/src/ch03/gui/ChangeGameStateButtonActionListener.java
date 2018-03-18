@@ -6,15 +6,15 @@ import java.awt.event.ActionListener;
 
 public class ChangeGameStateButtonActionListener implements ActionListener {
 
-	private ChessGui chessGui;
+	private OnitamaGui onitamaGui;
 
-	public ChangeGameStateButtonActionListener(ChessGui chessGui) {
-		this.chessGui = chessGui;
+	public ChangeGameStateButtonActionListener(OnitamaGui onitamaGui) {
+		this.onitamaGui = onitamaGui;
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent evt) {
 		// change game state
-		this.chessGui.changeGameState();
+		this.onitamaGui.changeGameState();
 	}
 }

@@ -13,15 +13,14 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import ch03.logic.ChessGame;
-import ch03.logic.Piece;
+import ch03.logic.*;
 
 /**
  * all x and y coordinates point to the upper left position of a component all
  * lists are treated as 0 being the bottom and size-1 being the top piece
  * 
  */
-public class ChessGui extends JPanel {
+public class OnitamaGui extends JPanel {
 	
 	private static final long serialVersionUID = 3951307773685425235L;
 	
@@ -43,10 +42,15 @@ public class ChessGui extends JPanel {
 	private Image imgBackground;
 	private JLabel lblGameState;
 	
-	private ChessGame chessGame;
+	private OnitamaGame onitamaGame;
+
 	private List<GuiPiece> guiPieces = new ArrayList<GuiPiece>();
 
-	public ChessGui() {
+	private GuiPiece dragPiece;
+
+	private Move lastMove;
+
+	public OnitamaGui() {
 		this.setLayout(null);
 
 		// background
@@ -54,13 +58,12 @@ public class ChessGui extends JPanel {
 		this.imgBackground = new ImageIcon(urlBackgroundImg).getImage();
 		
 		// create chess game
-		this.chessGame = new ChessGame();
+		this.onitamaGame = new OnitamaGame();
 		
 		//wrap game pieces into their graphical representation
-		for (Piece piece : this.chessGame.getPieces()) {
+		for (Piece piece : this.onitamaGame.getPieces()) {
 			createAndAddGuiPiece(piece);
 		}
-		
 
 		// add listeners to enable drag and drop
 		//
@@ -91,22 +94,21 @@ public class ChessGui extends JPanel {
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		f.add(this);
 		f.setSize(imgBackground.getWidth(null), imgBackground.getHeight(null));
+
+		// test code for TigerCard
+        TigerCard cardLogic = new TigerCard();
+        System.out.println(cardLogic.Tiger_player);
 	}
 
 	/**
 	 * @return textual description of current game state
 	 */
 	private String getGameStateAsText() {
-		return (this.chessGame.getGameState() == ChessGame.GAME_STATE_BLACK ? "black" : "white");
+		return (this.onitamaGame.getGameState() == OnitamaGame.GAME_STATE_BLACK ? "black" : "white");
 	}
 
 	/**
 	 * create a game piece
-	 * 
-	 * @param color color constant
-	 * @param type type constant
-	 * @param x x position of upper left corner
-	 * @param y y position of upper left corner
 	 */
 	private void createAndAddGuiPiece(Piece piece) {
 		Image img = this.getImageForPiece(piece.getColor(), piece.getType());
@@ -128,23 +130,11 @@ public class ChessGui extends JPanel {
 
 		filename += (color == Piece.COLOR_WHITE ? "w" : "b");
 		switch (type) {
-			case Piece.TYPE_BISHOP:
-				filename += "b";
-				break;
 			case Piece.TYPE_KING:
 				filename += "k";
 				break;
-			case Piece.TYPE_KNIGHT:
-				filename += "n";
-				break;
 			case Piece.TYPE_PAWN:
 				filename += "p";
-				break;
-			case Piece.TYPE_QUEEN:
-				filename += "q";
-				break;
-			case Piece.TYPE_ROOK:
-				filename += "r";
 				break;
 		}
 		filename += ".png";
@@ -155,24 +145,36 @@ public class ChessGui extends JPanel {
 
 	@Override
 	protected void paintComponent(Graphics g) {
+	    // draw background
 		g.drawImage(this.imgBackground, 0, 0, null);
 
+		// draw pieces
 		for (GuiPiece guiPiece : this.guiPieces) {
 			if( !guiPiece.isCaptured()){
 				g.drawImage(guiPiece.getImage(), guiPiece.getX(), guiPiece.getY(), null);
 			}
 		}
+
+		// draw the last move, if user is not dragging game piece
+        if(!isUserDraggingPiece() && this.lastMove != null){
+		    int highlightSourceX = convertColumnToX(this.lastMove.sourceColumn);
+        }
 	}
 
+	// return true if user is currently dragging game piece
+    private boolean isUserDraggingPiece() {
+	    return this.dragPiece != null;
+    }
+
 	public static void main(String[] args) {
-		new ChessGui();
+		new OnitamaGui();
 	}
 
 	/**
 	 * switches between the different game states 
 	 */
 	public void changeGameState() {
-		this.chessGame.changeGameState();
+		this.onitamaGame.changeGameState();
 		this.lblGameState.setText(this.getGameStateAsText());
 	}
 
@@ -180,7 +182,7 @@ public class ChessGui extends JPanel {
 	 * @return current game state
 	 */
 	public int getGameState() {
-		return this.chessGame.getGameState();
+		return this.onitamaGame.getGameState();
 	}
 	
 	/**
@@ -228,8 +230,8 @@ public class ChessGui extends JPanel {
 	 * @param y
 	 */
 	public void setNewPieceLocation(GuiPiece dragPiece, int x, int y) {
-		int targetRow = ChessGui.convertYToRow(y);
-		int targetColumn = ChessGui.convertXToColumn(x);
+		int targetRow = OnitamaGui.convertYToRow(y);
+		int targetColumn = OnitamaGui.convertXToColumn(x);
 		
 		if( targetRow < Piece.ROW_1 || targetRow > Piece.ROW_5 || targetColumn < Piece.COLUMN_A || targetColumn > Piece.COLUMN_E){
 			// reset piece position if move is not valid
@@ -238,11 +240,27 @@ public class ChessGui extends JPanel {
 		}else{
 			//change model and update gui piece afterwards
 			System.out.println("moving piece to "+targetRow+"/"+targetColumn);
-			this.chessGame.movePiece(
-					dragPiece.getPiece().getRow(), dragPiece.getPiece().getColumn()
-					, targetRow, targetColumn);
+			Move move = new Move(dragPiece.getPiece().getRow(), dragPiece.getPiece().getColumn()
+                    , targetRow, targetColumn);
+			boolean wasMoveSuccessful = this.onitamaGame.movePiece( move );
+
+			// if the last move was successfully executed, we remember it for
+            // highlighting in the gui later
+            if(wasMoveSuccessful) {
+                this.lastMove = move;
+            }
 			dragPiece.resetToUnderlyingPiecePosition();
 		}
 	}
+	// guiPiece - set the gui piece that the user is currently dragging
+    public void setDragPiece(GuiPiece guiPiece) {
+	    this.dragPiece = guiPiece;
+    }
+
+    // return the gui piece that the user is currently dragging
+
+    public GuiPiece getDragPiece() {
+	    return this.dragPiece;
+    }
 
 }

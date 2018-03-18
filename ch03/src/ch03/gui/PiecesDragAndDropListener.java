@@ -5,22 +5,22 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.List;
 
-import ch03.logic.ChessGame;
+import ch03.logic.OnitamaGame;
 import ch03.logic.Piece;
 
 public class PiecesDragAndDropListener implements MouseListener, MouseMotionListener {
 
 	private List<GuiPiece> guiPieces;
-	private ChessGui chessGui;
+	private OnitamaGui onitamaGui;
 	
-	private GuiPiece dragPiece;
+	//private GuiPiece dragPiece;
 	private int dragOffsetX;
 	private int dragOffsetY;
 	
 
-	public PiecesDragAndDropListener(List<GuiPiece> guiPieces, ChessGui chessGui) {
+	public PiecesDragAndDropListener(List<GuiPiece> guiPieces, OnitamaGui onitamaGui) {
 		this.guiPieces = guiPieces;
-		this.chessGui = chessGui;
+		this.onitamaGui = onitamaGui;
 	}
 
 	@Override
@@ -47,10 +47,10 @@ public class PiecesDragAndDropListener implements MouseListener, MouseMotionList
 
 			if(mouseOverPiece(guiPiece,x,y)){
 				
-				if( (	this.chessGui.getGameState() == ChessGame.GAME_STATE_WHITE
+				if( (	this.onitamaGui.getGameState() == OnitamaGame.GAME_STATE_WHITE
 						&& guiPiece.getColor() == Piece.COLOR_WHITE
 					) ||
-					(	this.chessGui.getGameState() == ChessGame.GAME_STATE_BLACK
+					(	this.onitamaGui.getGameState() == OnitamaGame.GAME_STATE_BLACK
 							&& guiPiece.getColor() == Piece.COLOR_BLACK
 						)
 					){
@@ -60,25 +60,22 @@ public class PiecesDragAndDropListener implements MouseListener, MouseMotionList
 					//
 					this.dragOffsetX = x - guiPiece.getX();
 					this.dragOffsetY = y - guiPiece.getY();
-					this.dragPiece = guiPiece;
+					this.onitamaGui.setDragPiece(guiPiece);
+					this.onitamaGui.repaint();
 					break;
 				}
 			}
 		}
 		
 		// move drag piece to the top of the list
-		if(this.dragPiece != null){
-			this.guiPieces.remove( this.dragPiece );
-			this.guiPieces.add(this.dragPiece);
+		if(this.onitamaGui.getDragPiece() != null){
+			this.guiPieces.remove( this.onitamaGui.getDragPiece() );
+			this.guiPieces.add(this.onitamaGui.getDragPiece());
 		}
 	}
 
 	/**
 	 * check whether the mouse is currently over this piece
-	 * @param piece the playing piece
-	 * @param x x coordinate of mouse
-	 * @param y y coordinate of mouse
-	 * @return true if mouse is over the piece
 	 */
 	private boolean mouseOverPiece(GuiPiece guiPiece, int x, int y) {
 
@@ -90,33 +87,34 @@ public class PiecesDragAndDropListener implements MouseListener, MouseMotionList
 
 	@Override
 	public void mouseReleased(MouseEvent evt) {
-		if( this.dragPiece != null){
+		if( this.onitamaGui.getDragPiece() != null){
 			int x = evt.getPoint().x - this.dragOffsetX;
 			int y = evt.getPoint().y - this.dragOffsetY;
 			
 			// set game piece to the new location if possible
 			//
-			chessGui.setNewPieceLocation(this.dragPiece, x, y);
-			this.chessGui.repaint();
-			this.dragPiece = null;
+			onitamaGui.setNewPieceLocation(this.onitamaGui.getDragPiece(), x, y);
+			this.onitamaGui.repaint();
+			this.onitamaGui.setDragPiece(null);
 		}
 	}
 
 	@Override
 	public void mouseDragged(MouseEvent evt) {
-		if(this.dragPiece != null){
+		if(this.onitamaGui.getDragPiece() != null){
 			
 			int x = evt.getPoint().x - this.dragOffsetX;
 			int y = evt.getPoint().y - this.dragOffsetY;
 			
 			System.out.println(
-					"row:"+ChessGui.convertYToRow(y)
-					+" column:"+ChessGui.convertXToColumn(x));
+					"row:"+ OnitamaGui.convertYToRow(y)
+					+" column:"+ OnitamaGui.convertXToColumn(x));
+
+			GuiPiece dragPiece = this.onitamaGui.getDragPiece();
+			dragPiece.setX(x);
+			dragPiece.setY(y);
 			
-			this.dragPiece.setX(x);
-			this.dragPiece.setY(y);
-			
-			this.chessGui.repaint();
+			this.onitamaGui.repaint();
 		}
 		
 	}

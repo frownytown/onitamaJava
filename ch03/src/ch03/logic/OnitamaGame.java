@@ -3,7 +3,7 @@ package ch03.logic;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ChessGame {
+public class OnitamaGame {
 	
 	private int gameState = GAME_STATE_WHITE;
 	public static final int GAME_STATE_WHITE = 0;
@@ -12,13 +12,14 @@ public class ChessGame {
 	// 0 = bottom, size = top
 	private List<Piece> pieces = new ArrayList<Piece>();
 
+	private MoveValidator moveValidator;
 	/**
 	 * initialize game
 	 */
-	public ChessGame(){
+	public OnitamaGame(){
 		
 		// create and place pieces
-		// rook, knight, bishop, queen, king, bishop, knight, and rook
+		// pawn and king
 		createAndAddPiece(Piece.COLOR_WHITE, Piece.TYPE_PAWN, Piece.ROW_1, Piece.COLUMN_A);
 		createAndAddPiece(Piece.COLOR_WHITE, Piece.TYPE_PAWN, Piece.ROW_1, Piece.COLUMN_B);
 		createAndAddPiece(Piece.COLOR_WHITE, Piece.TYPE_KING, Piece.ROW_1, Piece.COLUMN_C);
@@ -49,29 +50,31 @@ public class ChessGame {
 	/**
 	 * Move piece to the specified location. If the target location is occupied
 	 * by an opponent piece, that piece is marked as 'captured'
-	 * @param sourceRow the source row (Piece.ROW_..) of the piece to move
-	 * @param sourceColumn the source column (Piece.COLUMN_..) of the piece to move
-	 * @param targetRow the target row (Piece.ROW_..)
-	 * @param targetColumn the target column (Piece.COLUMN_..)
 	 */
-	public void movePiece(int sourceRow, int sourceColumn, int targetRow, int targetColumn) {
+	public boolean movePiece(Move move) {
 
-	    if (!this.moveValidator.isMoveValid(sourceRow, sourceColumn, targetRow, targetColumn)) {
+	    if (!this.moveValidator.isMoveValid(move)) {
 	        System.out.println("Invalid");
-	        return;
+	        return false;
         }
 
-		Piece piece = getNonCapturedPieceAtLocation(sourceRow, sourceColumn);
+		Piece piece = getNonCapturedPieceAtLocation(move.sourceRow,
+                move.sourceColumn);
 		
 		//check if the move is capturing an opponent piece
-		int opponentColor = (piece.getColor()==Piece.COLOR_BLACK?Piece.COLOR_WHITE:Piece.COLOR_BLACK);
-		if( isNonCapturedPieceAtLocation(opponentColor, targetRow, targetColumn)){
-			Piece opponentPiece = getNonCapturedPieceAtLocation( targetRow, targetColumn);
+		int opponentColor = (piece.getColor()==Piece.COLOR_BLACK ? Piece
+                .COLOR_WHITE: Piece.COLOR_BLACK);
+		if( isNonCapturedPieceAtLocation(opponentColor, move.targetRow,
+                move.targetColumn)){
+			Piece opponentPiece = getNonCapturedPieceAtLocation( move
+                    .targetRow, move.targetColumn);
 			opponentPiece.isCaptured(true);
 		}
 		
-		piece.setRow(targetRow);
-		piece.setColumn(targetColumn);
+		piece.setRow(move.targetRow);
+		piece.setColumn(move.targetColumn);
+
+		return true;
 	}
 
 	/**
@@ -81,7 +84,7 @@ public class ChessGame {
 	 * @param column one of Piece.COLUMN_..
 	 * @return the first not captured piece at the specified location
 	 */
-	private Piece getNonCapturedPieceAtLocation(int row, int column) {
+	public Piece getNonCapturedPieceAtLocation(int row, int column) {
 		for (Piece piece : this.pieces) {
 			if( piece.getRow() == row
 					&& piece.getColumn() == column
@@ -114,7 +117,7 @@ public class ChessGame {
 	}
 
 	/**
-	 * @return current game state (one of ChessGame.GAME_STATE_..)
+	 * @return current game state (one of OnitamaGame.GAME_STATE_..)
 	 */
 	public int getGameState() {
 		return this.gameState;
@@ -128,8 +131,8 @@ public class ChessGame {
 	}
 
 	/**
-	 * switches the game state from ChessGame.GAME_STATE_WHITE to
-	 * ChessGame.GAME_STATE_BLACK and vice versa.
+	 * switches the game state from OnitamaGame.GAME_STATE_WHITE to
+	 * OnitamaGame.GAME_STATE_BLACK and vice versa.
 	 */
 	public void changeGameState() {
 		switch (this.gameState) {
