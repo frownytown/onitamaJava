@@ -96,8 +96,7 @@ public class OnitamaGui extends JPanel {
 		f.setSize(imgBackground.getWidth(null), imgBackground.getHeight(null));
 
 		// test code for TigerCard
-        TigerCard cardLogic = new TigerCard();
-        System.out.println(cardLogic.Tiger_player);
+        
 	}
 
 	/**

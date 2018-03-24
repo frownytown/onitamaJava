@@ -17,6 +17,8 @@ public class OnitamaGame {
 	 * initialize game
 	 */
 	public OnitamaGame(){
+
+		this.moveValidator = new MoveValidator(this);
 		
 		// create and place pieces
 		// pawn and king
