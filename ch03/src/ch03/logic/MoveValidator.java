@@ -9,9 +9,16 @@ public class MoveValidator {
     private OnitamaGame onitamaGame;
     private Piece sourcePiece;
     private Piece targetPiece;
+    private Player player_1;
+    private Player player_2;
+    private Player player_3;
 
-    public MoveValidator(OnitamaGame onitamaGame){
+    public MoveValidator(OnitamaGame onitamaGame, Player player_1, Player
+            player_2, Player player_3){
         this.onitamaGame = onitamaGame;
+        this.player_1 = player_1;
+        this.player_2 = player_2;
+        this.player_3 = player_3;
     }
 
     // Function for checking if the specified move is valid
@@ -56,7 +63,13 @@ public class MoveValidator {
         // validate game movement rules via the card the player has selected?
         // going to need to call card movement validation here
 
-        // boolean validPieceMove = false
+        boolean validPieceMove = false;
+        switch (sourcePiece.getColor()) {
+            case Piece.COLOR_WHITE:
+                // TODO
+                //validPieceMove = isValidCardMove(sourceRow, sourceColumn,
+                //        targetRow, targetColumn, player_1, )
+        }
         // validation of valid card move()
         return true;
     }

@@ -95,15 +95,24 @@ public class OnitamaGui extends JPanel {
 		f.add(this);
 		f.setSize(imgBackground.getWidth(null), imgBackground.getHeight(null));
 
-		// test code for TigerCard
-        
+
+
 	}
 
 	/**
 	 * @return textual description of current game state
 	 */
 	private String getGameStateAsText() {
-		return (this.onitamaGame.getGameState() == OnitamaGame.GAME_STATE_BLACK ? "black" : "white");
+		String state = "unknown";
+		switch (this.onitamaGame.getGameState()){
+            case OnitamaGame.GAME_STATE_BLACK: state = "black";
+            break;
+            case OnitamaGame.GAME_STATE_END: state = "end";
+            break;
+            case OnitamaGame.GAME_STATE_WHITE: state = "white";
+            break;
+		}
+		return state;
 	}
 
 	/**
@@ -157,7 +166,52 @@ public class OnitamaGui extends JPanel {
 		// draw the last move, if user is not dragging game piece
         if(!isUserDraggingPiece() && this.lastMove != null){
 		    int highlightSourceX = convertColumnToX(this.lastMove.sourceColumn);
+		    int highlightSourceY = convertRowToY(this.lastMove.sourceRow);
+		    int highlightTargetX = convertColumnToX(this.lastMove.targetColumn);
+		    int highlightTargetY = convertRowToY(this.lastMove.targetRow);
+
+		    g.setColor(Color.YELLOW);
+		    g.drawRoundRect(highlightSourceX+4, highlightSourceY+4,
+                    SQUARE_WIDTH-8, SQUARE_HEIGHT-8,10,10);
+		    g.drawRoundRect(highlightTargetX+4, highlightTargetY+4,
+                    SQUARE_WIDTH-8, SQUARE_HEIGHT-8,10,10);
         }
+
+        // draw valid target locations, if user is dragging a game piece
+        if(isUserDraggingPiece()){
+
+		    MoveValidator moveValidator = this.onitamaGame.getMoveValidator();
+
+		    // iterate the complete board to check valid target locations
+            for (int column = Piece.COLUMN_A; column <= Piece.COLUMN_E;
+                 column++){
+                for (int row = Piece.ROW_1; row <= Piece.ROW_5; row++){
+                    int sourceRow = this.dragPiece.getPiece().getRow();
+                    int sourceColumn = this.dragPiece.getPiece().getColumn();
+
+                    // check if target location valid
+                    if(moveValidator.isMoveValid(new Move(sourceRow,
+                            sourceColumn, row, column))) {
+
+                        int highlightX = convertColumnToX(column);
+                        int highlightY = convertRowToY(row);
+
+                        // draw a drop shadow by drawing a rectangle with an
+                        // offset of 1 pixel
+                        g.setColor(Color.BLACK);
+                        g.drawRoundRect(highlightX+5, highlightY+5,
+                                SQUARE_WIDTH-8, SQUARE_HEIGHT-8,10,10);
+                        // draw the highlight
+                        g.setColor(Color.GREEN);
+                        g.drawRoundRect(highlightX+5, highlightY+5,
+                                SQUARE_WIDTH-8, SQUARE_HEIGHT-8,10,10);
+                    }
+                }
+            }
+        }
+
+        // draw game state label
+        this.lblGameState.setText(this.getGameStateAsText());
 	}
 
 	// return true if user is currently dragging game piece
